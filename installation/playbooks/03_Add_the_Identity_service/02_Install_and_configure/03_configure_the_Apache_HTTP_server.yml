@@ -1,46 +1,39 @@
 ---
 # http://docs.openstack.org/kilo/install-guide/install/apt/content/keystone-install.html
-- name: Add the Identity service > Install and configure > configure the Apache HTTP server
-  hosts: controller
-  roles:
-    - config
-  sudo: True
-  gather_facts: True
 
-  tasks:
+# Add the Identity service > Install and configure > configure the Apache HTTP server
+- name: 1. Edit the /etc/apache2/apache2.conf file and configure the ServerName option to reference the controller node
+  lineinfile: 
+    dest: /etc/apache2/apache2.conf
+    create: yes
+    line: "ServerName {{ ansible_hostname }}"
 
-  - name: 1. Edit the /etc/apache2/apache2.conf file and configure the ServerName option to reference the controller node
-    lineinfile: 
-      dest: /etc/apache2/apache2.conf
-      create: yes
-      line: "ServerName {{ ansible_hostname }}"
+- name: 2. Create the /etc/apache2/sites-available/wsgi-keystone.conf file
+  copy:
+    src: 02_Install_and_configure/wsgi-keystone.conf
+    dest: /etc/apache2/sites-available/wsgi-keystone.conf
+    owner: root
+    group: root
+    mode: 644
 
-  - name: 2. Create the /etc/apache2/sites-available/wsgi-keystone.conf file
-    copy:
-      src: wsgi-keystone.conf
-      dest: /etc/apache2/sites-available/wsgi-keystone.conf
-      owner: root
-      group: root
-      mode: 644
+- name: 3. Enable the Identity service virtual hosts
+  shell: 'ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled'
 
-  - name: 3. Enable the Identity service virtual hosts
-    shell: 'ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled'
+- name: 4. Create the directory structure for the WSGI components
+  shell: 'mkdir -p /var/www/cgi-bin/keystone'
 
-  - name: 4. Create the directory structure for the WSGI components
-    shell: 'mkdir -p /var/www/cgi-bin/keystone'
+- name: 5. Copy the WSGI components from the upstream repository into this directory
+  copy: 
+    src: 02_Install_and_configure/keystone.py
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: 644
+  with_items:
+  - /var/www/cgi-bin/keystone/main 
+  - /var/www/cgi-bin/keystone/admin
 
-  - name: 5. Copy the WSGI components from the upstream repository into this directory
-    copy: 
-      src: keystone.py
-      dest: "{{ item }}"
-      owner: root
-      group: root
-      mode: 644
-    with_items:
-    - /var/www/cgi-bin/keystone/main 
-    - /var/www/cgi-bin/keystone/admin
-
-  - name: 6. Adjust ownership and permissions on this directory and the files in it
-    shell: 'chown -R keystone:keystone /var/www/cgi-bin/keystone; chmod 755 /var/www/cgi-bin/keystone/*'
+- name: 6. Adjust ownership and permissions on this directory and the files in it
+  shell: 'chown -R keystone:keystone /var/www/cgi-bin/keystone; chmod 755 /var/www/cgi-bin/keystone/*'
 
 

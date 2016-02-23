@@ -1,37 +1,33 @@
 # copied from https://github.com/openstack-ansible/openstack-ansible
 # see their license file for license information GGPL
 ---
-- name: Add the Identity service > Install and configure > Install or verify Keystone database
-  hosts: controller
-  roles:
-    - config
-  sudo: True
-  gather_facts: False
-  tasks:
+
+
+# Add the Identity service > Install and configure > Install or verify Keystone database
 
     # 1. To create the database, complete these steps
     # -----------------------------------------------
 
-    - name: 1.b Create the keystone database
-      mysql_db: 
-        login_user: "{{ config.mysql_login_user }}"
-        login_password: "{{ config.mysql_login_password }}"
-        name: keystone
-        state: present
+- name: 1.b Create the keystone database
+  mysql_db: 
+    login_user: "{{ config.mysql_login_user }}"
+    login_password: "{{ config.mysql_login_password }}"
+    name: keystone
+    state: present
 
-    - name: 1.c Grant proper access to the keystone database
-      mysql_user: 
-        login_user: "{{ config.mysql_login_user }}"
-        login_password: "{{ config.mysql_login_password }}"
-        name: keystone 
-        host: "{{ item }}" 
-        password: "{{ config.keystone_mysql_password }}" 
-        priv: keystone.*:ALL
-      with_items:
-        - "%"
-        - localhost
+- name: 1.c Grant proper access to the keystone database
+  mysql_user: 
+    login_user: "{{ config.mysql_login_user }}"
+    login_password: "{{ config.mysql_login_password }}"
+    name: keystone 
+    host: "{{ item }}" 
+    password: "{{ config.keystone_mysql_password }}" 
+    priv: keystone.*:ALL
+  with_items:
+    - "%"
+    - localhost
 
-    # 2. Generate a random value to use as the administration token during initial configuration
-    # ------------------------------------------------------------------------------------------
-    #
-    # This is done in config/installation_configuration.sh
+  # 2. Generate a random value to use as the administration token during initial configuration
+  # ------------------------------------------------------------------------------------------
+  #
+  # This is done in config/installation_configuration.sh

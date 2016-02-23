@@ -1,15 +1,11 @@
 ---
 # http://docs.openstack.org/kilo/install-guide/install/apt/content/keystone-client-environment-scripts.html
-- name: Add the Identity service > Create OpenStack client environment scripts > create the scripts
-  hosts: localhost:all
-  sudo: False
-  roles: 
-  - config  
-  tasks:
 
-  - name: "1. Edit the admin-openrc.sh file"
-    template: src=admin-openrc.sh.j2 dest={{ ansible_user_dir }}/admin-openrc.sh owner={{ ansible_user_id }}
+# Add the Identity service > Create OpenStack client environment scripts > create the scripts
 
-  - name: "2. Edit the demo-openrc.sh file"
-    template: src=demo-openrc.sh.j2 dest={{ ansible_user_dir }}/demo-openrc.sh owner={{ ansible_user_id }}
+- name: "1. Edit the admin-openrc.sh file"
+  template: src=06_Create_OpenStack_client_environment_scripts/admin-openrc.sh.j2 dest=/home/ubuntu/admin-openrc.sh
+
+- name: "2. Edit the demo-openrc.sh file"
+  template: src=06_Create_OpenStack_client_environment_scripts/demo-openrc.sh.j2 dest=/home/ubuntu/demo-openrc.sh
 

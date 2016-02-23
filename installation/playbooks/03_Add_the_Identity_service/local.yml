@@ -1,0 +1,6 @@
+---
+- hosts: localhost:all
+  roles:
+  - config
+  tasks:
+    - include: 06_Create_OpenStack_client_environment_scripts/01_create_the_scripts.yml

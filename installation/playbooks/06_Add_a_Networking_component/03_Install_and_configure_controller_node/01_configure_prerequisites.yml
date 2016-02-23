@@ -52,6 +52,7 @@
 
     - name: 3.c Create the neutron service entity
       shell: "openstack service create --name neutron --description 'OpenStack Networking' network"
+      when: region.role == "master"
 
     # 4. Create the Networking service API endpoint
     # ---------------------------------------------

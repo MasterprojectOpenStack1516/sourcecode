@@ -51,6 +51,7 @@
 
     - name: 3.c Create the nova service entity
       shell: "openstack service create --name nova --description 'OpenStack Compute' compute"
+      when: region.role == "master"
 
     # 4. Create the Compute service API endpoint
     # ------------------------------------------

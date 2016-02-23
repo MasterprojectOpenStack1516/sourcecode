@@ -37,7 +37,7 @@
     # using assertions: http://docs.ansible.com/ansible/assert_module.html
     assert:
       that: 
-      - nova_list.stdout | search(item + "\s*\|\s*" + config.controller_node_hostname + "\s*\|\s*internal\s*\|\s*enabled\s*\|\s*up")
+      - nova_list.stdout | search(item + "\s*\|\s*" + "controller" + "\s*\|\s*internal\s*\|\s*enabled\s*\|\s*up")
     with_items:
     - nova-consoleauth
     - nova-scheduler

@@ -24,6 +24,7 @@
 
   - name: "2.c Create the swift service entity"
     shell: 'openstack service create --name swift --description "OpenStack Object Storage" object-store'
+    when: region.role == "master"
 
   - name: "3. Create the swift service entity"
     shell: "openstack endpoint create --publicurl \'http://{{ config.controller_node_hostname }}:8080/v1/AUTH_%(tenant_id)s\' --internalurl \'http://{{ config.controller_node_hostname }}:8080/v1/AUTH_%(tenant_id)s\' --adminurl http://{{ config.controller_node_hostname }}:8080 --region {{ region.name }} object-store"

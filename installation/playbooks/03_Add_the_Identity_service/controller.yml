@@ -1,0 +1,26 @@
+---
+- hosts: controller
+  roles:
+    - config
+  become: yes
+  gather_facts: False
+
+    # ERROR: openstack Authorization Failed: Cannot authenticate without an auth_url
+  environment: "{{ config.environment.token }}"
+  tasks:
+    # http://docs.openstack.org/kilo/install-guide/install/apt/content/ch_keystone.html
+    - include: master_region.yml
+      when: region.role == "master"
+    - include: 06_Create_OpenStack_client_environment_scripts/main.yml
+    - include: 03_Create_the_API_endpoint.yml
+      when: region.role != "master" # region is slave
+
+
+- hosts: controller
+  # no sudo
+  # environment is not set
+  roles:
+    - config
+  tasks:
+    - include: 05_verify_operation.yml
+      when: region.role == "master"

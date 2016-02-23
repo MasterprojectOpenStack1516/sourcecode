@@ -1,0 +1,12 @@
+---
+- name: Basic environment > OpenStack packages > install openstack client
+  hosts: controller
+  become: yes
+  roles:
+    - config
+
+  tasks:
+  - name: install the packages
+    apt: pkg={{item}} state=installed
+    with_items:
+    - python-openstackclient

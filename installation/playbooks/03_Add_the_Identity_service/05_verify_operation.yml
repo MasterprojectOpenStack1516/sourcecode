@@ -1,105 +1,102 @@
 ---
 # http://docs.openstack.org/kilo/install-guide/install/apt/content/keystone-verify.html
-- name: Add the Identity service > Verify operation
-  hosts: controller
-  roles:
-  - config
-  tasks:
 
-  # we disable the access token method but the token is still in /etc/keystone/keystone.conf
-  - name: 1. For security reasons, disable the temporary authentication token mechanism
-    shell: "sed --in-place 's/admin_token_auth\\s\\?//' /etc/keystone/keystone-paste.ini"
-    sudo: True
+# Add the Identity service > Verify operation
 
-  - name: 2. Unset the temporary OS_TOKEN and OS_URL environment variables
-    # this does not need to be done because we do not have them set 
-    # make sure they are not set
-    # "man test"
-    shell: test -z "$OS_TOKEN" || { echo \$OS_TOKEN should not be set ; exit 1 ; } ; \
-           test -z "$OS_URL"   || { echo \$OS_URL should not be set ; exit 2 ; }
-  
-  - name: 3. As the admin user, request an authentication token from the Identity version 2.0 API
-    shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
-                     --os-project-name admin --os-username admin \
-                     --os-password "{{ config.openstack_admin_user_password }}" \
-                     --os-auth-type password \
-                     token issue
+# we disable the access token method but the token is still in /etc/keystone/keystone.conf
+- name: 1. For security reasons, disable the temporary authentication token mechanism
+  shell: "sed --in-place 's/admin_token_auth\\s\\?//' /etc/keystone/keystone-paste.ini"
+  sudo: True
 
-  - name: 4. As the admin user, request an authentication token from the Identity version 3.0 API
-    shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
-                     --os-project-domain-id default --os-user-domain-id default \
-                     --os-project-name admin --os-username admin \
-                     --os-password "{{ config.openstack_admin_user_password }}" \
-                     --os-auth-type password \
-                     token issue
+- name: 2. Unset the temporary OS_TOKEN and OS_URL environment variables
+  # this does not need to be done because we do not have them set 
+  # make sure they are not set
+  # "man test"
+  shell: test -z "$OS_TOKEN" || { echo \$OS_TOKEN should not be set ; exit 1 ; } ; \
+         test -z "$OS_URL"   || { echo \$OS_URL should not be set ; exit 2 ; }
 
-  - name: 5.1. As the admin user, list projects to verify that the admin user can execute admin-only CLI commands and that the Identity service contains the projects that you created
-    shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
-                     --os-project-name admin --os-username admin \
-                     --os-password "{{ config.openstack_admin_user_password }}" \
-                     --os-auth-type password \
-                     project list
-    register: openstack_project_list
+- name: 3. As the admin user, request an authentication token from the Identity version 2.0 API
+  shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
+                   --os-project-name admin --os-username admin \
+                   --os-password "{{ config.openstack_admin_user_password }}" \
+                   --os-auth-type password \
+                   token issue
 
-  - name: 5.2. Test for the service, demo and admin project
-    # http://docs.ansible.com/ansible/assert_module.html
-    assert:
-      that: 
-      - "'service' in openstack_project_list.stdout"
-      - "'demo'    in openstack_project_list.stdout"
-      - "'admin'   in openstack_project_list.stdout"
+- name: 4. As the admin user, request an authentication token from the Identity version 3.0 API
+  shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
+                   --os-project-domain-id default --os-user-domain-id default \
+                   --os-project-name admin --os-username admin \
+                   --os-password "{{ config.openstack_admin_user_password }}" \
+                   --os-auth-type password \
+                   token issue
 
-  - name: 6.1. As the admin user, list users to verify that the Identity service contains the users that you created
-    shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
-                     --os-project-name admin --os-username admin \
-                     --os-password "{{ config.openstack_admin_user_password }}" \
-                     --os-auth-type password \
-                     user list
-    register: openstack_user_list
+- name: 5.1. As the admin user, list projects to verify that the admin user can execute admin-only CLI commands and that the Identity service contains the projects that you created
+  shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
+                   --os-project-name admin --os-username admin \
+                   --os-password "{{ config.openstack_admin_user_password }}" \
+                   --os-auth-type password \
+                   project list
+  register: openstack_project_list
 
-  - name: 6.2. Test for the demo and admin user.
-    assert:
-      that: 
-      - "'demo'    in openstack_user_list.stdout"
-      - "'admin'   in openstack_user_list.stdout"
+- name: 5.2. Test for the service, demo and admin project
+  # http://docs.ansible.com/ansible/assert_module.html
+  assert:
+    that: 
+    - "'service' in openstack_project_list.stdout"
+    - "'demo'    in openstack_project_list.stdout"
+    - "'admin'   in openstack_project_list.stdout"
 
-  - name: 7.1. As the admin user, list roles to verify that the Identity service contains the role that you created
-    shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
-                     --os-project-name admin --os-username admin \
-                     --os-password "{{ config.openstack_admin_user_password }}" \
-                     --os-auth-type password \
-                     role list \
-    register: openstack_role_list
+- name: 6.1. As the admin user, list users to verify that the Identity service contains the users that you created
+  shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
+                   --os-project-name admin --os-username admin \
+                   --os-password "{{ config.openstack_admin_user_password }}" \
+                   --os-auth-type password \
+                   user list
+  register: openstack_user_list
 
-  - name: 7.2. Test for the user and admin role.
-    assert:
-      that: 
-      - "'user'    in openstack_role_list.stdout"
-      - "'admin'   in openstack_role_list.stdout"
+- name: 6.2. Test for the demo and admin user.
+  assert:
+    that: 
+    - "'demo'    in openstack_user_list.stdout"
+    - "'admin'   in openstack_user_list.stdout"
+
+- name: 7.1. As the admin user, list roles to verify that the Identity service contains the role that you created
+  shell: openstack --os-auth-url "{{ config.os_auth_admin_url }}" \
+                   --os-project-name admin --os-username admin \
+                   --os-password "{{ config.openstack_admin_user_password }}" \
+                   --os-auth-type password \
+                   role list \
+  register: openstack_role_list
+
+- name: 7.2. Test for the user and admin role.
+  assert:
+    that: 
+    - "'user'    in openstack_role_list.stdout"
+    - "'admin'   in openstack_role_list.stdout"
 
 
-  - name: 8. As the demo user, request an authentication token from the Identity version 3 API
-    # it works with the config.os_auth_admin_url
-    shell: openstack --os-auth-url "{{ config.os_auth_user_url }}" \
-                     --os-project-domain-id default --os-user-domain-id default \
-                     --os-project-name demo --os-username demo \
-                     --os-password "{{ config.openstack_demo_user_password }}" \
-                     --os-auth-type password -vvv \
-                     token issue
+- name: 8. As the demo user, request an authentication token from the Identity version 3 API
+  # it works with the config.os_auth_admin_url
+  shell: openstack --os-auth-url "{{ config.os_auth_user_url }}" \
+                   --os-project-domain-id default --os-user-domain-id default \
+                   --os-project-name demo --os-username demo \
+                   --os-password "{{ config.openstack_demo_user_password }}" \
+                   --os-auth-type password -vvv \
+                   token issue
 
-  - name: 9.1. As the demo user, attempt to list users to verify that it cannot execute admin-only CLI commands
-    shell: openstack --os-auth-url "{{ config.os_auth_user_url }}" \
-                     --os-project-domain-id default --os-user-domain-id default \
-                     --os-project-name demo --os-username demo \
-                     --os-password "{{ config.openstack_demo_user_password }}" \
-                     --os-auth-type password \
-                     user list || true
-    register: demo_user_list
+- name: 9.1. As the demo user, attempt to list users to verify that it cannot execute admin-only CLI commands
+  shell: openstack --os-auth-url "{{ config.os_auth_user_url }}" \
+                   --os-project-domain-id default --os-user-domain-id default \
+                   --os-project-name demo --os-username demo \
+                   --os-password "{{ config.openstack_demo_user_password }}" \
+                   --os-auth-type password \
+                   user list || true
+  register: demo_user_list
 
-  - name: 9.2 Check that an error occurred.
+- name: 9.2 Check that an error occurred.
 
-    assert:
-      that: 
-      - "'ERROR: openstack You are not authorized to perform the requested action: admin_required (HTTP 403)' in demo_user_list.stderr"
+  assert:
+    that: 
+    - "'ERROR: openstack You are not authorized to perform the requested action: admin_required (HTTP 403)' in demo_user_list.stderr"
 
 

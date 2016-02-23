@@ -1,6 +1,6 @@
 ---
 # http://docs.openstack.org/kilo/install-guide/install/apt/content/ch_basic_environment.html
-- name: Basic environment > OpenStack packages > finalize installation
+- name: Basic environment > OpenStack packages > update cache
   hosts: all
   sudo: yes
   gather_facts: False

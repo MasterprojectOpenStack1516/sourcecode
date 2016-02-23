@@ -1,0 +1,6 @@
+---
+  - include: 02_Install_and_configure/main.yml
+  - include: 03_Create_the_service_entity.yml
+  - include: 03_Create_the_API_endpoint.yml
+  - include: 04_Create_projects_users_and_roles.yml
+

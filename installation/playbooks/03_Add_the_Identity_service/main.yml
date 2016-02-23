@@ -1,7 +1,3 @@
 ---
-# http://docs.openstack.org/kilo/install-guide/install/apt/content/ch_keystone.html
-- include: 02_Install_and_configure/main.yml
-- include: 03_Create_the_service_entity_and_API_endpoint.yml
-- include: 04_Create_projects_users_and_roles.yml
-- include: 05_verify_operation.yml
-- include: 06_Create_OpenStack_client_environment_scripts/main.yml
+  - include: controller.yml
+  - include: local.yml

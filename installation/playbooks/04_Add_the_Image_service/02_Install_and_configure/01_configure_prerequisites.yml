@@ -52,6 +52,7 @@
 
   - name: 3.c Create the glance service entity
     shell: "openstack service create --name glance --description 'OpenStack Image service' image"
+    when: region.role == "master"
 
   # 4. Create the Image service API endpoint
   # ----------------------------------------

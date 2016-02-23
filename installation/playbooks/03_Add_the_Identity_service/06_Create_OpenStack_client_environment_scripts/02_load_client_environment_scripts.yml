@@ -1,16 +1,11 @@
 ---
 # http://docs.openstack.org/kilo/install-guide/install/apt/content/keystone-client-environment-scripts.html
-- name: Add the Identity service > Create OpenStack client environment scripts > load client environment scripts
-  hosts: controller
-  sudo: False
-  roles: 
-  - config  
-  tasks:
 
-  - name: "Load the admin-openrc.sh file and request an authentication token"
-    # This step requires the host file to resolve the hostname of the controller 
-    # on all host as well as localhost.
-    shell: source ~/admin-openrc.sh; \
-           openstack token issue
-    args:
-      executable: /bin/bash
+# Add the Identity service > Create OpenStack client environment scripts > load client environment scripts
+
+- name: "Load the admin-openrc.sh file and request an authentication token"
+  # This step requires the host file to resolve the hostname of the controller 
+  # on all host as well as localhost.
+  shell: source /home/ubuntu/admin-openrc.sh && openstack token issue
+  args:
+    executable: /bin/bash

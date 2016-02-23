@@ -1,78 +1,68 @@
 ---
 # http://docs.openstack.org/kilo/install-guide/install/apt/content/keystone-users.html
-- name: Add the Identity service > Create projects, users, and roles
-  hosts: controller
-  roles:
-    - config
-  sudo: True
-  gather_facts: False
-  # ERROR: openstack Authorization Failed: Cannot authenticate without an auth_url
-  environment: "{{ config.environment.token }}"
+# Add the Identity service > Create projects, users, and roles
+# Create an administrative project, user, and role for administrative operations in your environment.
 
-  tasks:
+- name: "1.a.0. Delete the admin project if existent"
+  shell: openstack project delete admin  || true
 
-  # Create an administrative project, user, and role for administrative operations in your environment.
+- name: "1.a. Create the admin project"
+  shell: 'openstack project create --description "Admin Project" admin'
 
-  - name: "1.a.0. Delete the admin project if existent"
-    shell: openstack project delete admin  || true
+- name: "1.b.0. Delete the admin user if existent"
+  shell: openstack user delete admin || true
 
-  - name: "1.a. Create the admin project"
-    shell: 'openstack project create --description "Admin Project" admin'
+- name: "1.b. Create the admin user"
+  # set --password
+  # openstack user create [-h] [-f {html,json,shell,table,value,yaml}]
+  #                              [-c COLUMN] [--max-width <integer>]
+  #                              [--prefix PREFIX] [--project <project>]
+  #                              [--password <password>] [--password-prompt]
+  #                              [--email <email-address>] [--enable | --disable]
+  #                              [--or-show]
+  #                              <name>
+  shell: "openstack user create --password={{ config.openstack_admin_user_password }} admin"
 
-  - name: "1.b.0. Delete the admin user if existent"
-    shell: openstack user delete admin || true
+- name: "1.c.0. Delete the admin role  if existent"
+  shell: openstack role delete admin || true
 
-  - name: "1.b. Create the admin user"
-    # set --password
-    # openstack user create [-h] [-f {html,json,shell,table,value,yaml}]
-    #                              [-c COLUMN] [--max-width <integer>]
-    #                              [--prefix PREFIX] [--project <project>]
-    #                              [--password <password>] [--password-prompt]
-    #                              [--email <email-address>] [--enable | --disable]
-    #                              [--or-show]
-    #                              <name>
-    shell: "openstack user create --password={{ config.openstack_admin_user_password }} admin"
+- name: "1.c. Create the admin role"
+  shell: openstack role create admin
 
-  - name: "1.c.0. Delete the admin role  if existent"
-    shell: openstack role delete admin || true
+- name: "1.d. Add the admin role to the admin project and user"
+  shell: openstack role add --project admin --user admin admin
 
-  - name: "1.c. Create the admin role"
-    shell: openstack role create admin
+# This guide uses a service project that contains a unique user for each service that you add to your environment.
 
-  - name: "1.d. Add the admin role to the admin project and user"
-    shell: openstack role add --project admin --user admin admin
+- name: "2.a.0. Delete the service project if existent"
+  shell: openstack project delete service || true
 
-  # This guide uses a service project that contains a unique user for each service that you add to your environment.
+- name: "2.a. Create the service project"
+  shell: 'openstack project create --description "Service Project" service'
 
-  - name: "2.a.0. Delete the service project if existent"
-    shell: openstack project delete service || true
+# Regular (non-admin) tasks should use an unprivileged project and user. As an example, this guide creates the demo project and user.
+# You can repeat this procedure to create additional projects and users.
+# TODO: Maybe create this as part of an ansible role to create users with different names
 
-  - name: "2.a. Create the service project"
-    shell: 'openstack project create --description "Service Project" service'
+- name: "3.a.0. Delete the demo project if existent"
+  shell: openstack project delete demo || true
 
-  # Regular (non-admin) tasks should use an unprivileged project and user. As an example, this guide creates the demo project and user.
-  # You can repeat this procedure to create additional projects and users.
-  # TODO: Maybe create this as part of an ansible role to create users with different names
+- name: "3.a. Create the demo project"
+  shell: 'openstack project create --description "Demo Project" demo'
+  # Note: Do not repeat this step when creating additional users for this project
 
-  - name: "3.a.0. Delete the demo project if existent"
-    shell: openstack project delete demo || true
+- name: "3.b.0. Delete the demo user if existent"
+  shell: openstack user delete demo || true
 
-  - name: "3.a. Create the demo project"
-    shell: 'openstack project create --description "Demo Project" demo'
-    # Note: Do not repeat this step when creating additional users for this project
+- name: "3.b. Create the demo user"
+  shell: "openstack user create --password={{ config.openstack_demo_user_password }} demo"
 
-  - name: "3.b.0. Delete the demo user if existent"
-    shell: openstack user delete demo || true
+- name: "3.c.0. Delete the user role if existent"
+  shell: openstack role delete user || true
 
-  - name: "3.b. Create the demo user"
-    shell: "openstack user create --password={{ config.openstack_demo_user_password }} demo"
+- name: "3.c. Create the user role"
+  shell: openstack role create user
 
-  - name: "3.c.0. Delete the user role if existent"
-    shell: openstack role delete user || true
-
-  - name: "3.c. Create the user role"
-    shell: openstack role create user
-
-  - name: "3.d. Add the user role to the demo project and user"
-    shell: openstack role add --project demo --user demo user
+- name: "3.d. Add the user role to the demo project and user"
+  shell: openstack role add --project demo --user demo user
 
